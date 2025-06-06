@@ -1,0 +1,29 @@
+name: push-to-sheet
+
+on:
+  push:
+    paths:
+      - 'listings/*.yaml'
+
+jobs:
+  push-to-sheet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml requests
+      - name: Send listings to Google Sheets
+        env:
+          GAS_WEBAPP_URL: https://script.google.com/macros/s/AKfycbyDnkHAp66YSDRCg0ujQvrWGGKt-Nz8e4FyrhPV3Z38E21-wASLYH8xy_47dFJEFKYvQw/exec
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^listings/' | grep '.yaml$' || true)
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No listings changed"
+            exit 0
+          fi
+          python scripts/push_to_gas.py $CHANGED_FILES
