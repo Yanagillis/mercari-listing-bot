@@ -21,4 +21,4 @@ jobs:
         env:
           GAS_WEBAPP_URL: ${{ secrets.GAS_WEBAPP_URL }}
         run: |
-          python scripts/push_to_gas.py listings/2025-06-07.yaml
+          python scripts/push_to_gas.py
